@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026深圳市城综尊驰年会大抽奖</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 50%, #f59e0b 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .number-ball {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .number-ball:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .number-ball.drawn {
+            background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+            color: #718096;
+            transform: scale(0.9);
+            opacity: 0.6;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .number-ball.winner {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #92400e;
+            animation: winnerPulse 1s ease-in-out infinite;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+        }
+        
+        @keyframes winnerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .rolling-animation {
+            animation: roll 0.1s linear infinite;
+        }
+        
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        .title-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* 微信浏览器特殊样式 */
+        .wechat-tip {
+            display: none;
+            background: linear-gradient(135deg, #07c160 0%, #05a050 100%);
+        }
+        
+        .url-display {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    
+    <!-- 微信提示层 -->
+    <div id="wechatMask" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="text-5xl mb-4">📲</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">请在浏览器中打开</h3>
+            <p class="text-gray-600 mb-4 text-sm">微信内置浏览器限制，请点击右上角<br>「···」→「在Safari/浏览器中打开」</p>
+            <div class="bg-gray-100 p-3 rounded-lg mb-4">
+                <p class="text-xs text-gray-500 mb-1">或复制链接到浏览器：</p>
+                <p id="wechatUrl" class="url-display text-gray-800 select-all"></p>
+            </div>
+            <button onclick="copyUrl()" class="w-full py-3 bg-green-500 text-white rounded-xl font-bold mb-2">复制链接</button>
+            <button onclick="closeWechatTip()" class="w-full py-3 bg-gray-200 text-gray-700 rounded-xl font-bold">我知道了</button>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <!-- 标题 -->
+        <div class="glass-panel rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-yellow-400">
+            <h1 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-yellow-500 to-red-600 title-glow mb-2">
+                🏮 2026深圳市城综尊驰年会大抽奖 🏮
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg font-bold">扫码参与 1-18 数字抽奖</p>
+        </div>
+
+        <!-- 姓名输入区域 -->
+        <div class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                <div class="flex-1 w-full md:w-auto">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">👤 抽奖人姓名</label>
+                    <input type="text" id="userName" placeholder="请输入您的姓名" maxlength="10"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:outline-none transition text-lg"
+                        onkeypress="if(event.key==='Enter')setUserName()">
+                </div>
+                <button onclick="setUserName()" id="nameBtn"
+                    class="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition whitespace-nowrap">
+                    确认参与
+                </button>
+            </div>
+            <p id="currentUser" class="mt-3 text-center text-gray-600 hidden">
+                当前抽奖人：<span class="font-bold text-red-600 text-xl" id="displayUserName"></span>
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- 左侧：二维码和控制面板 -->
+            <div class="space-y-6">
+                <!-- 二维码区域 -->
+                <div class="glass-panel rounded-3xl p-4 md:p-8 shadow-2xl text-center">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-2">
+                        <span>📱</span> 扫码抽奖
+                    </h2>
+                    
+                    <!-- 微信提示 -->
+                    <div id="wechatTip" class="wechat-tip text-white p-3 rounded-xl mb-4 text-sm">
+                        <p>⚠️ 微信用户请点右上角「···」→「在浏览器打开」</p>
+                    </div>
+                    
+                    <div id="qrcode" class="inline-block p-4 bg-white rounded-2xl shadow-inner max-w-full overflow-hidden"></div>
+                    
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-500">扫描二维码即可参与抽奖</p>
+                        <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                            <p class="text-xs text-gray-400 mb-1">链接地址：</p>
+                            <p id="currentUrl" class="url-display text-gray-600 select-all"></p>
+                        </div>
+                        <button onclick="copyUrl()" class="text-sm text-blue-600 underline">复制链接分享给同事</button>
+                    </div>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-3 md:p-4 text-white text-center">
+                            <div class="text-2xl md:text-3xl font-bold" id="remainingCount">18</div>
+                            <div class="text-xs md:text-sm opacity-90">剩余奖池</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-3 md:p-4 text-white text-center">
+                            <div class="text-2xl md:text-3xl font-bold" id="drawnCount">0</div>
+                            <div class="text-xs md:text-sm opacity-90">已抽取</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：抽奖区域和奖池 -->
+            <div class="space-y-6">
+                <!-- 抽奖按钮和结果显示 -->
+                <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 via-red-500 to-yellow-400"></div>
+                    
+                    <div class="mb-6 md:mb-8">
+                        <div id="resultDisplay" class="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center text-4xl md:text-6xl font-black text-gray-400 shadow-inner mb-4 transition-all duration-300">
+                            ?
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-700 px-2" id="resultText">输入姓名后点击抽奖</h3>
+                    </div>
+
+                    <button id="drawBtn" onclick="startDraw()" class="btn-shine w-full py-3 md:py-4 bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 text-white text-xl md:text-2xl font-bold rounded-2xl shadow-lg transform transition hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        🎲 立即抽奖
+                    </button>
+
+                    <button id="resetBtn" onclick="resetPool()" class="mt-4 w-full py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition hidden">
+                        🔄 重置奖池
+                    </button>
+                </div>
+
+                <!-- 奖池展示 -->
+                <div class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl">
+                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span>🏆</span> 奖池状态
+                        <span class="text-xs md:text-sm font-normal text-gray-500 ml-auto" id="poolStatus">剩余 18 个号码</span>
+                    </h3>
+                    <div id="numberPool" class="grid grid-cols-6 gap-2 md:gap-3">
+                        <!-- 数字球将由JS生成 -->
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl">
+                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span>📜</span> 中奖记录
+                    </h3>
+                    <div id="historyList" class="flex flex-wrap gap-2 max-h-40 md:max-h-48 overflow-y-auto">
+                        <span class="text-gray-400 text-sm italic">暂无记录...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检测是否是微信浏览器
+        function isWechat() {
+            return /MicroMessenger/i.test(navigator.userAgent);
+        }
+        
+        // 显示微信提示
+        function showWechatTip() {
+            if (isWechat()) {
+                document.getElementById('wechatTip').style.display = 'block';
+            }
+        }
+        
+        function closeWechatTip() {
+            document.getElementById('wechatMask').classList.add('hidden');
+        }
+        
+        // 复制链接
+        function copyUrl() {
+            const url = window.location.href.split('?')[0];
+            document.getElementById('wechatUrl').textContent = url;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('链接已复制！请粘贴到浏览器打开');
+                });
+            } else {
+                // 兼容旧浏览器
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                alert('链接已复制！请粘贴到浏览器打开');
+            }
+        }
+
+        // 初始化数据
+        let availableNumbers = Array.from({length: 18}, (_, i) => i + 1);
+        let drawnNumbers = [];
+        let isRolling = false;
+        let history = [];
+        let currentUserName = '';
+
+        // 设置姓名
+        function setUserName() {
+            const input = document.getElementById('userName');
+            const name = input.value.trim();
+            
+            if (!name) {
+                alert('请输入姓名！');
+                return;
+            }
+            
+            currentUserName = name;
+            document.getElementById('displayUserName').textContent = name;
+            document.getElementById('currentUser').classList.remove('hidden');
+            input.disabled = true;
+            document.getElementById('nameBtn').textContent = '更换姓名';
+            document.getElementById('nameBtn').onclick = resetUserName;
+            document.getElementById('resultText').textContent = '点击下方按钮开始抽奖';
+            
+            localStorage.setItem('lotteryUserName', name);
+        }
+
+        // 重置姓名
+        function resetUserName() {
+            const input = document.getElementById('userName');
+            input.disabled = false;
+            input.value = '';
+            input.focus();
+            document.getElementById('currentUser').classList.add('hidden');
+            document.getElementById('nameBtn').textContent = '确认参与';
+            document.getElementById('nameBtn').onclick = setUserName;
+            currentUserName = '';
+            document.getElementById('resultText').textContent = '输入姓名后点击抽奖';
+            localStorage.removeItem('lotteryUserName');
+        }
+
+        // 检查本地存储的姓名
+        function checkStoredName() {
+            const stored = localStorage.getItem('lotteryUserName');
+            if (stored) {
+                document.getElementById('userName').value = stored;
+                setUserName();
+            }
+        }
+
+        // 初始化页面
+        function init() {
+            showWechatTip();
+            generateQRCode();
+            renderPool();
+            updateStats();
+            checkStoredName();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const savedState = urlParams.get('state');
+            if (savedState) {
+                try {
+                    const state = JSON.parse(atob(savedState));
+                    availableNumbers = state.available || availableNumbers;
+                    drawnNumbers = state.drawn || [];
+                    history = state.history || [];
+                    updateStats();
+                    renderPool();
+                    renderHistory();
+                } catch(e) {
+                    console.log('无保存状态');
+                }
+            }
+        }
+
+        // 生成二维码
+        function generateQRCode() {
+            const url = window.location.href.split('?')[0];
+            document.getElementById('currentUrl').textContent = url;
+            document.getElementById('wechatUrl').textContent = url;
+            
+            try {
+                const qrcode = new QRCode(document.getElementById("qrcode"), {
+                    text: url,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } catch(e) {
+                console.error('二维码生成失败', e);
+                document.getElementById('qrcode').innerHTML = '<p class="text-red-500 text-sm">二维码生成失败<br>请直接复制链接</p>';
+            }
+        }
+
+        // 渲染奖池
+        function renderPool() {
+            const container = document.getElementById('numberPool');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 18; i++) {
+                const ball = document.createElement('div');
+                const isDrawn = !availableNumbers.includes(i);
+                const isLastWinner = history.length > 0 && history[history.length - 1].includes(`→ ${i}`);
+                
+                ball.className = `number-ball aspect-square rounded-full flex items-center justify-center text-sm md:text-lg font-bold cursor-pointer select-none ${
+                    isDrawn 
+                        ? 'drawn' 
+                        : isLastWinner 
+                            ? 'winner' 
+                            : 'bg-gradient-to-br from-white to-gray-100 text-gray-700 border-2 border-gray-200'
+                }`;
+                ball.textContent = i;
+                ball.title = isDrawn ? '已抽取' : '可抽取';
+                container.appendChild(ball);
+            }
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('remainingCount').textContent = availableNumbers.length;
+            document.getElementById('drawnCount').textContent = drawnNumbers.length;
+            document.getElementById('poolStatus').textContent = `剩余 ${availableNumbers.length} 个号码`;
+            
+            const resetBtn = document.getElementById('resetBtn');
+            if (availableNumbers.length === 0) {
+                resetBtn.classList.remove('hidden');
+                document.getElementById('drawBtn').disabled = true;
+                document.getElementById('drawBtn').textContent = '奖池已空';
+            } else {
+                resetBtn.classList.add('hidden');
+                document.getElementById('drawBtn').disabled = false;
+                document.getElementById('drawBtn').textContent = '🎲 立即抽奖';
+            }
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (history.length === 0) {
+                container.innerHTML = '<span class="text-gray-400 text-sm italic">暂无记录...</span>';
+                return;
+            }
+            
+            container.innerHTML = history.map((record, index) => {
+                const isLast = index === history.length - 1;
+                const parts = record.split(' → ');
+                const hasName = parts.length === 2;
+                const name = hasName ? parts[0] : null;
+                const num = hasName ? parts[1] : record;
+                
+                return `
+                    <div class="inline-flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-bold ${
+                        isLast 
+                            ? 'bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border-2 border-yellow-400 shadow-lg' 
+                            : 'bg-gray-100 text-gray-600'
+                    }">
+                        <span class="text-xs opacity-60">#${index + 1}</span>
+                        ${name ? `<span class="text-red-600 max-w-[60px] md:max-w-[80px] truncate">${name}</span><span class="text-gray-400">→</span>` : ''}
+                        <span class="text-base md:text-lg text-red-700">${num}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 开始抽奖
+        function startDraw() {
+            if (!currentUserName) {
+                alert('请先输入姓名！');
+                document.getElementById('userName').focus();
+                return;
+            }
+            
+            if (isRolling || availableNumbers.length === 0) return;
+            
+            isRolling = true;
+            const btn = document.getElementById('drawBtn');
+            const display = document.getElementById('resultDisplay');
+            const text = document.getElementById('resultText');
+            
+            btn.disabled = true;
+            text.textContent = '抽奖中...';
+            display.classList.add('rolling-animation');
+            
+            let rollCount = 0;
+            const maxRolls = 20;
+            const rollInterval = setInterval(() => {
+                const randomNum = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+                display.textContent = randomNum;
+                rollCount++;
+                
+                if (rollCount >= maxRolls) {
+                    clearInterval(rollInterval);
+                    finalizeDraw();
+                }
+            }, 100);
+        }
+
+        // 确定结果
+        function finalizeDraw() {
+            const display = document.getElementById('resultDisplay');
+            const text = document.getElementById('resultText');
+            const btn = document.getElementById('drawBtn');
+            
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const winner = availableNumbers[randomIndex];
+            
+            availableNumbers.splice(randomIndex, 1);
+            drawnNumbers.push(winner);
+            
+            const record = currentUserName ? `${currentUserName} → ${winner}` : winner;
+            history.push(record);
+            
+            display.textContent = winner;
+            display.classList.remove('rolling-animation');
+            display.classList.add('winner');
+            text.innerHTML = `🎉 恭喜 <span class="text-red-600 font-bold">${currentUserName}</span> 抽中 <span class="text-2xl md:text-3xl font-bold text-yellow-600">${winner}</span>！`;
+            
+            createConfetti();
+            renderPool();
+            updateStats();
+            renderHistory();
+            saveState();
+            
+            isRolling = false;
+            if (availableNumbers.length > 0) {
+                btn.disabled = false;
+            }
+            
+            setTimeout(() => {
+                display.classList.remove('winner');
+            }, 3000);
+        }
+
+        // 创建彩纸效果
+        function createConfetti() {
+            const colors = ['#fbbf24', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#ec4899'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        // 重置奖池
+        function resetPool() {
+            if (!confirm('确定要重置奖池吗？所有记录将被清空。')) return;
+            
+            availableNumbers = Array.from({length: 18}, (_, i) => i + 1);
+            drawnNumbers = [];
+            history = [];
+            
+            document.getElementById('resultDisplay').textContent = '?';
+            document.getElementById('resultDisplay').className = 'w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center text-4xl md:text-6xl font-black text-gray-400 shadow-inner mb-4 transition-all duration-300';
+            document.getElementById('resultText').textContent = currentUserName ? '点击下方按钮开始抽奖' : '输入姓名后点击抽奖';
+            
+            renderPool();
+            updateStats();
+            renderHistory();
+            saveState();
+        }
+
+        // 保存状态到URL
+        function saveState() {
+            const state = {
+                available: availableNumbers,
+                drawn: drawnNumbers,
+                history: history
+            };
+            const encoded = btoa(JSON.stringify(state));
+            const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?state=' + encoded;
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>
