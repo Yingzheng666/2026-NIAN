@@ -368,26 +368,23 @@
         
         // 生成二维码
 function generateQRCode() {
-    const url = "https://github.com/Yingzheng666/2026-NIAN/";
-    // 例如：const url = "https://zhangsan.github.io/choujiang2026/";
-
-            document.getElementById('currentUrl').textContent = url;
-            document.getElementById('wechatUrl').textContent = url;
-            
-            try {
-                const qrcode = new QRCode(document.getElementById("qrcode"), {
-                    text: url,
-                    width: 180,
-                    height: 180,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            } catch(e) {
-                console.error('二维码生成失败', e);
-                document.getElementById('qrcode').innerHTML = '<p class="text-red-500 text-sm">二维码生成失败<br>请直接复制链接</p>';
-            }
-        }
+    const url = "https://yingzheng666.github.io/2026-NIAN/";
+    document.getElementById('currentUrl').textContent = url;
+    document.getElementById('wechatUrl').textContent = url;
+    
+    try {
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: url,
+            width: 180,
+            height: 180,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    } catch(e) {
+        console.error('二维码生成失败', e);
+    }
+}
 
         // 渲染奖池
         function renderPool() {
